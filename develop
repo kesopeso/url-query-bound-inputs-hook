@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+export FRONTEND_PORT=${FRONTEND_PORT:-3000}
+
+USER_GROUP="-u ${USER_GROUP:-"1000:1000"}"
+
+COMPOSE="docker-compose -f docker-compose.yml"
+
+if [ $# -gt 0 ];then
+    if [ "$1" == "npm" ]; then
+        shift 1
+        $COMPOSE run --rm $TTY $USER_GROUP qbp.react npm "$@"
+    elif [ "$1" == "npx" ]; then
+        shift 1
+        $COMPOSE run --rm $TTY $USER_GROUP qbp.react npx "$@"
+    elif [ "$1" == "serve" ]; then
+        $COMPOSE run --rm $TTY $USER_GROUP qbp.react serve
+    elif [ "$1" == "exec" ]; then
+        shift 1
+        $COMPOSE exec "$@"
+    else
+        $COMPOSE "$@"
+    fi
+else
+    $COMPOSE ps
+fi

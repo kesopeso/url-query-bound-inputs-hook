@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+    qbp.react:
+        image: node:latest
+        container_name: qbp.react
+        volumes:
+            - ./app:/opt/app
+        working_dir: /opt/app
+        ports:
+            - '${FRONTEND_PORT}:3000'
+        command: npm start
+        restart: always
