@@ -2,6 +2,16 @@
 
 Example of hook used for manipulating URL query from an input. This hook also initializes input values on page load.
 
+# Environment
+
+This project uses Docker for env setup. To run this project you need to have Docker and Docker Compose installed.
+
+Issue the following commands to run the project
+```bash
+./develop npm install
+./develop up -d
+```
+
 # Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
