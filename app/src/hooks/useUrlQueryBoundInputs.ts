@@ -41,17 +41,17 @@ const setElementValues = (search: string, transformations: QueryTransformation[]
  * Hook for changing url query from inputs.
  * This hook also sets initial input values based on starting url query.
  * 
- * @param search url query prefixed with '?'
- * @param history history object from RouteComponentProps
- * @param transformations array of transformations for different query parameters
+ * @param {string} search url query prefixed with '?'
+ * @param {History} history history object from RouteComponentProps
+ * @param {QueryTransformation[]} transformations array of transformations for different query parameters
  *
- * @returns object
+ * @returns {UseUrlQueryBoundInputsHook} object with function for adding the new query param value
  */
 const useUrlQueryBoundInputs = ( 
     search: string,
     history: History,
     transformations: QueryTransformation[]
-) => {
+): UseUrlQueryBoundInputsHook => {
     useEffect(() => {
         setElementValues(search, transformations);
     }, [search, transformations]);
