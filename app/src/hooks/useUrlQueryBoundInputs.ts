@@ -50,11 +50,15 @@ const setElementValues = (search: string, transformations: QueryTransformation[]
 const useUrlQueryBoundInputs = ( 
     search: string,
     history: History,
-    transformations: QueryTransformation[]
+    transformations: QueryTransformation[],
+    applyEffectCallback: () => void,
+    cancelEffectCallback: () => void
 ): UseUrlQueryBoundInputsHook => {
     useEffect(() => {
         setElementValues(search, transformations);
-    }, [search, transformations]);
+        applyEffectCallback();
+        return cancelEffectCallback;
+    }, [search, transformations, applyEffectCallback, cancelEffectCallback]);
 
     var hook: UseUrlQueryBoundInputsHook = {
         setQueryParam: (queryParamName, value) => setQueryParam(queryParamName, value, history),

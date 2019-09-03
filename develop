@@ -18,6 +18,8 @@ if [ $# -gt 0 ];then
     elif [ "$1" == "exec" ]; then
         shift 1
         $COMPOSE exec "$@"
+    elif [ "$1" == "logs" ]; then
+        $COMPOSE logs --timestamps --follow --tail=200 qbp.react
     else
         $COMPOSE "$@"
     fi
