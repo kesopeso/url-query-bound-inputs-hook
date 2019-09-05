@@ -38,7 +38,7 @@ const AppBody: React.FC<RouteComponentProps> = props => {
   const { doFetch, cancelFetch } = dataFetcher;
 
   // url bound inputs hook
-  useUrlQueryBoundInputs(Date.now().toString() + 
+  useUrlQueryBoundInputs(
     search,
     transformation,
     doFetch,
