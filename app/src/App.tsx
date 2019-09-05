@@ -1,41 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import logo from "./logo.svg";
 import "./App.scss";
 import { withRouter, RouteComponentProps, BrowserRouter } from "react-router-dom";
-// import useUrlQueryBoundInputs, { QueryTransformation } from "./hooks/useUrlQueryBoundInputs";
+import useUrlQueryBoundInputs, { QueryTransformation } from "./hooks/useUrlQueryBoundInputs";
 import useFetchData from "./hooks/useFetchData";
+import { History } from 'history';
 
-// default props for AppBody component
-interface AppBodyProps {
-}
-
-// enhanced AppBodyProps with router props
-type EnhancedAppBodyProps = AppBodyProps & RouteComponentProps;
-
-const fetcher = async (returnStr: string) => new Promise<string>(
-  (resolve) =>  {
-    setTimeout(() => {  
-      resolve(returnStr);
-    }, 3000);
-  }
+// some async function
+const fetcher = async (search: string) => new Promise<string>(
+  (resolve) => setTimeout(() => resolve(Date.now().toString() + search), 1000)
 );
 
+// sets url query using history API
+const setQueryParam = (queryParamName: string, value: string, history: History) => {
+  const newQueryValue = !value ? '' : `?${queryParamName}=${value}`;
+  history.push({ search: newQueryValue });
+};
+
 // main component for editing
-const AppBody: React.FC<EnhancedAppBodyProps> = props => {
-  const { history } = props;
-  // const { search } = location;
+const AppBody: React.FC<RouteComponentProps> = props => {
+  const { location, history } = props;
+  const { search } = location;
+
+  // input control hook
   const [ inputValue, setInputValue ] = useState('');
 
+  // transformation memoized object
+  const transformation = useMemo<QueryTransformation[]>(() => [
+    {
+      queryParamName: 'search',
+      setElementValue: setInputValue
+    },
+  ], []);
+
+  // data fetcher hook
   const dataFetcher = useFetchData(fetcher);
+  const { doFetch, cancelFetch } = dataFetcher;
 
+  // url bound inputs hook
+  useUrlQueryBoundInputs(
+    search,
+    transformation,
+    doFetch,
+    cancelFetch
+  );
+
+  // some method #2
   const setSomeUrlQuery = () => {
-    const text = 'check if field updates';
-    history.push({ search: `?search=${text}` });
+    const text = 'date: ' + Date.now();
+    setQueryParam('search', text, history);
   };
 
-  const onButtonClick = () => {
-    dataFetcher.doFetch(['keso']);
-  };
+  // some activation method #2
+  const onButtonClick = () => setQueryParam('search', inputValue, history);
 
   return (
     <div className="App">
@@ -45,13 +62,13 @@ const AppBody: React.FC<EnhancedAppBodyProps> = props => {
         {dataFetcher.isLoading ?
           <div>Loading...</div> :
           (dataFetcher.error ?
-            <div>Error occured: {dataFetcher.error}</div> :
+            <div>Error: {dataFetcher.error.message}</div> :
             <div>{!!dataFetcher.data ? `Data: ${dataFetcher.data}` : 'No data yet'}</div>
           )
         }
 
         <div>
-          <button onClick={() => setSomeUrlQuery()}>Set some query</button>
+          <button onClick={() => setSomeUrlQuery()}>TIME QUERY</button>
         </div>
 
         <div>
@@ -60,10 +77,10 @@ const AppBody: React.FC<EnhancedAppBodyProps> = props => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.currentTarget.value)}
             />
-            <button onClick={onButtonClick}>Set query param</button>
+            <button onClick={onButtonClick}>INPUT QUERY</button>
         </div>
 
-        <button onClick={dataFetcher.cancelFetch}>cancel</button>
+        <button onClick={dataFetcher.cancelFetch}>CANCEL</button>
       </header>
     </div>
   );

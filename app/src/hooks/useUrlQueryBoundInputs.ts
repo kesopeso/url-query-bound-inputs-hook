@@ -1,4 +1,3 @@
-import {History} from 'history';
 import { useEffect } from 'react';
 
 export interface QueryTransformation {
@@ -6,11 +5,7 @@ export interface QueryTransformation {
     setElementValue: (value: string) => void;
 }
 
-type TSetQueryParam = (queryParamName: string, value: string) => void
-
-interface UseUrlQueryBoundInputsHook {
-    setQueryParam: TSetQueryParam;
-}
+type TEffectCallback = (search: string) => void; 
 
 // gets param from url query
 const getParamFromQuery = (search: string, queryParamName: string) => {
@@ -21,12 +16,6 @@ const getParamFromQuery = (search: string, queryParamName: string) => {
     const valueIdx = resultSplitted.length >= 2 ? 1 : 0;
     const resultValue = decodeURIComponent(resultSplitted[valueIdx]);
     return resultValue;
-};
-
-// sets url query using history API
-const setQueryParam = (queryParamName: string, value: string, history: History) => {
-    const newQueryValue = !value ? '' : `?${queryParamName}=${value}`;
-    history.push({ search: newQueryValue });
 };
 
 // sets element values using transformations array
@@ -42,28 +31,28 @@ const setElementValues = (search: string, transformations: QueryTransformation[]
  * This hook also sets initial input values based on starting url query.
  * 
  * @param {string} search url query prefixed with '?'
- * @param {History} history history object from RouteComponentProps
  * @param {QueryTransformation[]} transformations array of transformations for different query parameters
- *
- * @returns {UseUrlQueryBoundInputsHook} object with function for adding the new query param value
+ * @param {TEffectCallback} applyEffectCallback function to execute when search is changed
+ * @param {TEffectCallback} cancelEffectCallback clean up function
+ * 
+ * @returns void
  */
 const useUrlQueryBoundInputs = ( 
     search: string,
-    history: History,
     transformations: QueryTransformation[],
-    applyEffectCallback: () => void,
-    cancelEffectCallback: () => void
-): UseUrlQueryBoundInputsHook => {
+    applyEffectCallback: TEffectCallback,
+    cancelEffectCallback: TEffectCallback
+) => {
     useEffect(() => {
         setElementValues(search, transformations);
-        applyEffectCallback();
-        return cancelEffectCallback;
-    }, [search, transformations, applyEffectCallback, cancelEffectCallback]);
-
-    var hook: UseUrlQueryBoundInputsHook = {
-        setQueryParam: (queryParamName, value) => setQueryParam(queryParamName, value, history),
-    };
-    return hook;
+        applyEffectCallback(search);
+        return () => cancelEffectCallback(search);
+    }, [
+        search,
+        transformations,
+        applyEffectCallback,
+        cancelEffectCallback
+    ]);
 };
 
 export default useUrlQueryBoundInputs;

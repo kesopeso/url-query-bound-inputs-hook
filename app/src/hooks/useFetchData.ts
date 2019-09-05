@@ -5,8 +5,8 @@ type TDataFetcherFunction<TArgs extends any[], TReturnData> = (...dataFetcherArg
 const useFetchData = <TArgs extends any[], TReturnData>(dataFetcher: TDataFetcherFunction<TArgs, TReturnData>) => {
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState<TReturnData>();
-    const [error, setError] = useState<Error | undefined>();
-    const [args, setArgs] = useState<TArgs | undefined>(undefined);
+    const [error, setError] = useState<Error>();
+    const [args, setArgs] = useState<TArgs>();
 
     useEffect(() => {
         if (!args) {
@@ -19,13 +19,24 @@ const useFetchData = <TArgs extends any[], TReturnData>(dataFetcher: TDataFetche
             setIsLoading(true);
             setError(undefined);
 
-            const data = await dataFetcher(...args);
+            let data: TReturnData | undefined = undefined;
+            let error: Error | undefined = undefined;
+            try {
+                data = await dataFetcher(...args);
+                if (isCanceled) {
+                    return;
+                }
+            }
+            catch (e) {
+                error = e;
+            }
 
             if (isCanceled) {
                 return;
             }
 
             setData(data);
+            setError(error);
             setIsLoading(false);
         };
 
@@ -34,9 +45,10 @@ const useFetchData = <TArgs extends any[], TReturnData>(dataFetcher: TDataFetche
         };
         
         getData();
-
         return cancelDataGet; 
     }, [dataFetcher, args]);
+
+    const doFetch = useCallback((...args: TArgs) => setArgs(args), []);
 
     const cancelFetch = useCallback(() => {
         setArgs(undefined);
@@ -48,7 +60,7 @@ const useFetchData = <TArgs extends any[], TReturnData>(dataFetcher: TDataFetche
         isLoading,
         data,
         error,
-        doFetch: setArgs,
+        doFetch,
         cancelFetch,
     };
 };
