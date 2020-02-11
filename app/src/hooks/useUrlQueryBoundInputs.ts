@@ -30,25 +30,25 @@ const setElementValues = (search: string, transformations: QueryTransformation[]
  * Hook for changing url query from inputs.
  * This hook also sets initial input values based on starting url query.
  * 
- * @param {string} search url query prefixed with '?'
+ * @param {string} query url query
  * @param {QueryTransformation[]} transformations array of transformations for different query parameters
  * @param {TEffectCallback} applyEffectCallback function to execute when search is changed
  * @param {TEffectCallback} cancelEffectCallback clean up function
  * 
  * @returns void
  */
-const useUrlQueryBoundInputs = ( 
-    search: string,
+const useUrlQueryBoundInputs = (
+    query: string,
     transformations: QueryTransformation[],
     applyEffectCallback: TEffectCallback,
     cancelEffectCallback: TEffectCallback
 ) => {
     useEffect(() => {
-        setElementValues(search, transformations);
-        applyEffectCallback(search);
-        return () => cancelEffectCallback(search);
+        setElementValues(query, transformations);
+        applyEffectCallback(query);
+        return () => cancelEffectCallback(query);
     }, [
-        search,
+        query,
         transformations,
         applyEffectCallback,
         cancelEffectCallback
